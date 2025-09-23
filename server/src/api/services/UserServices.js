@@ -12,7 +12,7 @@ const getUserById = (id) => {
     return `User with ID: ${id}`
 }
 
-module.exports = {
+export {
     printUsers,
     getNewUser,
     getUserById

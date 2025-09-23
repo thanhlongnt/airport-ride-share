@@ -1,6 +1,6 @@
 // call all the business logic from UserServices.js
 
-const userController = require("../services/UserServices");
+import * as userController from "../services/UserServices.js";
 
 const getUsers = (req, res) => {
     res.send(userController.printUsers());
@@ -14,7 +14,7 @@ const getUserById = (req, res) => {
   res.send(userController.getUserById(req.params.id));
 }
 
-module.exports = {
+export {
     getUsers,
     getNewUser,
     getUserById
