@@ -117,6 +117,10 @@ function App() {
     setCurrentStage(STAGES.HOME);
   };
 
+  const handleEditProfile = () => {
+    setCurrentStage(STAGES.PROFILE_SETUP);
+  };
+
   const renderCurrentStage = () => {
     // Show loading state while checking for existing session
     if (isLoading) {
@@ -143,7 +147,7 @@ function App() {
         return <Home user={user} onNavigateProfile={handleNavigateProfile} />;
         
       case STAGES.PROFILE:
-        return <Profile user={user} onNavigateHome={handleNavigateHome} />;
+        return <Profile user={user} onNavigateHome={handleNavigateHome} onEdit={handleEditProfile} />;
         
       default:
         return <Login onLoginSuccess={handleLoginSuccess} />;

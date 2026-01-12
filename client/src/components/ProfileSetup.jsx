@@ -2,16 +2,19 @@ import { useState, useEffect, useRef } from 'react';
 import './ProfileSetup.css';
 
 function ProfileSetup({ onComplete, user }) {
+  // Determine if we're editing an existing profile or creating a new one
+  const isEditing = user?.phoneNumber ? true : false;
+
   const [formData, setFormData] = useState({
     email: user?.email || '',
     name: user?.name || '',
-    phoneNumber: '',
-    instagramHandle: '',
-    summary: '',
+    phoneNumber: user?.phoneNumber || '',
+    instagramHandle: user?.instagramHandle || '',
+    summary: user?.summary || '',
     profileImage: null
   });
 
-  const [profileImagePreview, setProfileImagePreview] = useState(null);
+  const [profileImagePreview, setProfileImagePreview] = useState(user?.profileImage || user?.picture || null);
   const fileInputRef = useRef(null);
   const [errors, setErrors] = useState({});
   const [isMobile, setIsMobile] = useState(false);
@@ -171,31 +174,46 @@ function ProfileSetup({ onComplete, user }) {
         summary: formData.summary
       };
 
-      // Send POST request to server
-      const response = await fetch('http://localhost:3000/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData)
-      });
+      let response;
+      
+      if (isEditing) {
+        // Update existing user with PUT request
+        console.log('Updating user profile:', formData.email);
+        response = await fetch(`http://localhost:3000/users/${encodeURIComponent(formData.email)}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData)
+        });
+      } else {
+        // Create new user with POST request
+        console.log('Creating new user profile');
+        response = await fetch('http://localhost:3000/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData)
+        });
+      }
 
       if (!response.ok) {
-        throw new Error('Failed to create profile');
+        throw new Error(isEditing ? 'Failed to update profile' : 'Failed to create profile');
       }
 
       const result = await response.json();
-      console.log('Profile created:', result);
+      console.log(isEditing ? 'Profile updated:' : 'Profile created:', result);
       
       // Move to the next step
       if (onComplete) {
         onComplete(result);
       }
     } catch (error) {
-      console.error('Error creating profile:', error);
+      console.error(isEditing ? 'Error updating profile:' : 'Error creating profile:', error);
       setErrors({
         ...errors,
-        submit: 'Failed to create profile. Please try again.'
+        submit: isEditing ? 'Failed to update profile. Please try again.' : 'Failed to create profile. Please try again.'
       });
     }
   };
@@ -203,8 +221,8 @@ function ProfileSetup({ onComplete, user }) {
   return (
     <div className="profile-setup-container">
       <div className="profile-setup-box">
-        <h1 className="profile-title">Complete Your Profile</h1>
-        <p className="profile-subtitle">Tell us a little about yourself</p>
+        <h1 className="profile-title">{isEditing ? 'Edit Your Profile' : 'Complete Your Profile'}</h1>
+        <p className="profile-subtitle">{isEditing ? 'Update your information' : 'Tell us a little about yourself'}</p>
         
         <form className="profile-form" onSubmit={handleSubmit}>
           <div className="profile-image-container">
@@ -313,9 +331,9 @@ function ProfileSetup({ onComplete, user }) {
             type="submit" 
             className="submit-button"
             role="button"
-            aria-label="Complete Profile"
+            aria-label={isEditing ? 'Save Profile' : 'Complete Profile'}
           >
-            {isMobile ? 'Complete' : 'Complete Profile'}
+            {isEditing ? (isMobile ? 'Save' : 'Save Changes') : (isMobile ? 'Complete' : 'Complete Profile')}
           </button>
         </form>
       </div>

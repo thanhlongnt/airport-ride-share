@@ -59,11 +59,21 @@ const getProfile = async (req, res) => {
     }
 }
 
+const updateUser = async (req, res) => {
+    try {
+        const user = await userServices.updateUser(req.params.email, req.body);
+        res.json(user);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+}
+
 export {
     getUsers,
     getNewUser,
     getUserById,
     addUser,
     checkUserExists,
-    getProfile
+    getProfile,
+    updateUser
 }

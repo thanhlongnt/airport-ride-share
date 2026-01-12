@@ -104,11 +104,48 @@ const getProfile = async (email) => {
     }
 };
 
+/**
+ * Update user by email
+ */
+const updateUser = async (email, updateData) => {
+    try {
+        // Find user by email
+        const user = await User.findByEmail(email);
+        
+        if (!user) {
+            throw new Error(`User with email ${email} not found`);
+        }
+        
+        // Update allowed fields
+        const allowedUpdates = ['name', 'phoneNumber', 'instagramHandle', 'summary', 'profileImage'];
+        
+        allowedUpdates.forEach(field => {
+            if (updateData[field] !== undefined) {
+                user[field] = updateData[field];
+            }
+        });
+        
+        // Save the updated user (validation happens automatically)
+        await user.save();
+        
+        return user;
+    } catch (error) {
+        console.error("Error updating user:", error);
+        // Handle Mongoose validation errors
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(err => err.message);
+            throw new Error(messages.join(', '));
+        }
+        throw error;
+    }
+};
+
 export {
     printUsers,
     getNewUser,
     getUserById,
     addUser,
     checkUserExists,
-    getProfile
+    getProfile,
+    updateUser
 };

@@ -38,6 +38,31 @@
   height: 20px;
 }
 
+.edit-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background-color: #34a853;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-left: auto;
+}
+
+.edit-button:hover {
+  background-color: #2d8e47;
+}
+
+.edit-button svg {
+  width: 18px;
+  height: 18px;
+}
+
 .profile-title {
   font-size: clamp(1.5rem, 5vw, 2rem);
   color: #333;

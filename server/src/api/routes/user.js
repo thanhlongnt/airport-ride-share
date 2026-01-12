@@ -18,4 +18,7 @@ router.get("/profile/:email", UserController.getProfile);
 // Add a new user
 router.post("/", UserController.addUser);
 
+// Update user by email
+router.put("/:email", UserController.updateUser);
+
 export default router;
