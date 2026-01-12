@@ -3,9 +3,10 @@ import './ProfileSetup.css';
 
 function ProfileSetup({ onComplete }) {
   const [formData, setFormData] = useState({
+    email: '',
     name: '',
-    instagramHandle: '',
     phoneNumber: '',
+    instagramHandle: '',
     summary: '',
     profileImage: null
   });
@@ -95,13 +96,14 @@ function ProfileSetup({ onComplete }) {
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
     }
     
-    // Instagram handle is now optional, but if provided it should start with @
-    if (formData.instagramHandle.trim() && !formData.instagramHandle.startsWith('@')) {
-      newErrors.instagramHandle = 'Instagram handle should start with @';
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
     }
     
     if (!formData.phoneNumber.trim()) {
@@ -110,10 +112,15 @@ function ProfileSetup({ onComplete }) {
       newErrors.phoneNumber = 'Please enter a valid phone number';
     }
     
+    // Instagram handle is now optional, but if provided it should start with @
+    if (formData.instagramHandle.trim() && !formData.instagramHandle.startsWith('@')) {
+      newErrors.instagramHandle = 'Instagram handle should start with @';
+    }
+    
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     const validationErrors = validateForm();
@@ -123,12 +130,42 @@ function ProfileSetup({ onComplete }) {
       return;
     }
     
-    // Save profile data (this would typically go to a backend)
-    console.log('Profile created:', formData);
-    
-    // Move to the next step
-    if (onComplete) {
-      onComplete(formData);
+    try {
+      // Prepare data to send (excluding profileImage for now as it needs special handling)
+      const userData = {
+        email: formData.email,
+        name: formData.name,
+        phoneNumber: formData.phoneNumber,
+        instagramHandle: formData.instagramHandle,
+        summary: formData.summary
+      };
+
+      // Send POST request to server
+      const response = await fetch('http://localhost:3000/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create profile');
+      }
+
+      const result = await response.json();
+      console.log('Profile created:', result);
+      
+      // Move to the next step
+      if (onComplete) {
+        onComplete(result);
+      }
+    } catch (error) {
+      console.error('Error creating profile:', error);
+      setErrors({
+        ...errors,
+        submit: 'Failed to create profile. Please try again.'
+      });
     }
   };
 
@@ -166,6 +203,22 @@ function ProfileSetup({ onComplete }) {
             />
             {errors.profileImage && <span className="error-message">{errors.profileImage}</span>}
           </div>
+          
+          <div className="form-group">
+            <label htmlFor="email">Email*</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className={errors.email ? 'input-error' : ''}
+              placeholder="your.email@example.com"
+              autoComplete="email"
+            />
+            {errors.email && <span className="error-message">{errors.email}</span>}
+          </div>
+          
           <div className="form-group">
             <label htmlFor="name">Name*</label>
             <input
@@ -178,6 +231,23 @@ function ProfileSetup({ onComplete }) {
               placeholder="Your full name"
             />
             {errors.name && <span className="error-message">{errors.name}</span>}
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="phoneNumber">Phone Number*</label>
+            <input
+              type="tel"
+              id="phoneNumber"
+              name="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+              className={errors.phoneNumber ? 'input-error' : ''}
+              placeholder="(123) 456-7890"
+              inputMode="tel"
+              autoComplete="tel"
+              pattern="[0-9()-+ ]*"
+            />
+            {errors.phoneNumber && <span className="error-message">{errors.phoneNumber}</span>}
           </div>
           
           <div className="form-group">
@@ -195,24 +265,6 @@ function ProfileSetup({ onComplete }) {
           </div>
           
           <div className="form-group">
-            <label htmlFor="phoneNumber">Phone Number*</label>
-            <input
-              type="tel"
-              id="phoneNumber"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              className={errors.phoneNumber ? 'input-error' : ''}
-              placeholder="(123) 456-7890"
-              // Mobile-specific attributes for better phone input handling
-              inputMode="tel"
-              autoComplete="tel"
-              pattern="[0-9()-+ ]*"
-            />
-            {errors.phoneNumber && <span className="error-message">{errors.phoneNumber}</span>}
-          </div>
-          
-          <div className="form-group">
             <label htmlFor="summary">Summary (Optional)</label>
             <textarea
               id="summary"
@@ -223,6 +275,8 @@ function ProfileSetup({ onComplete }) {
               rows="3"
             />
           </div>
+          
+          {errors.submit && <div className="error-message">{errors.submit}</div>}
           
           <button 
             type="submit" 

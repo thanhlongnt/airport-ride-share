@@ -4,10 +4,13 @@ import * as UserController from "../controllers/UserController.js";
 
 const router = express.Router();
 
+// Get all users
 router.get("/", UserController.getUsers);
 
-router.get("/new", UserController.getNewUser);
-
+// Get user by ID
 router.get("/:id", UserController.getUserById);
+
+// Add a new user
+router.post("/", UserController.addUser);
 
 export default router;
