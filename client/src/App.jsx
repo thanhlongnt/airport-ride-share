@@ -1,8 +1,12 @@
 import { useState } from 'react';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import './App.css';
 import Login from './components/Login';
 import ProfileSetup from './components/ProfileSetup';
 import Home from './components/Home';
+
+// Replace with your actual Google Client ID
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
 
 // App flow stages
 const STAGES = {
@@ -71,9 +75,11 @@ function App() {
   };
 
   return (
-    <div className="app-container">
-      {renderCurrentStage()}
-    </div>
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <div className="app-container">
+        {renderCurrentStage()}
+      </div>
+    </GoogleOAuthProvider>
   );
 }
 

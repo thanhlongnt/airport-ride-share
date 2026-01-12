@@ -31,6 +31,13 @@
   font-size: clamp(0.9rem, 3vw, 1rem);
 }
 
+.google-login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
 .google-login-button {
   display: flex;
   align-items: center;
