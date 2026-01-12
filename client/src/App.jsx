@@ -4,13 +4,15 @@ import './App.css';
 import Login from './components/Login';
 import ProfileSetup from './components/ProfileSetup';
 import Home from './components/Home';
+import Profile from './components/Profile';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 const STAGES = {
   LOGIN: 'login',
   PROFILE_SETUP: 'profile_setup',
-  HOME: 'home'
+  HOME: 'home',
+  PROFILE: 'profile'
 };
 
 function App() {
@@ -107,6 +109,14 @@ function App() {
     setCurrentStage(STAGES.HOME);
   };
 
+  const handleNavigateProfile = () => {
+    setCurrentStage(STAGES.PROFILE);
+  };
+
+  const handleNavigateHome = () => {
+    setCurrentStage(STAGES.HOME);
+  };
+
   const renderCurrentStage = () => {
     // Show loading state while checking for existing session
     if (isLoading) {
@@ -130,7 +140,10 @@ function App() {
         return <ProfileSetup onComplete={handleProfileComplete} user={user} />;
         
       case STAGES.HOME:
-        return <Home user={user} />;
+        return <Home user={user} onNavigateProfile={handleNavigateProfile} />;
+        
+      case STAGES.PROFILE:
+        return <Profile user={user} onNavigateHome={handleNavigateHome} />;
         
       default:
         return <Login onLoginSuccess={handleLoginSuccess} />;
