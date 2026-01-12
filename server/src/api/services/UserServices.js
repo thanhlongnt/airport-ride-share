@@ -73,9 +73,42 @@ const addUser = async (userData) => {
     }
 };
 
+/**
+ * Check if a user exists by email
+ */
+const checkUserExists = async (email) => {
+    try {
+        const user = await User.findByEmail(email);
+        return !!user; // Return true if user exists, false otherwise
+    } catch (error) {
+        console.error("Error checking user existence:", error);
+        throw error;
+    }
+};
+
+/**
+ * Get user profile by email
+ */
+const getProfile = async (email) => {
+    try {
+        const user = await User.findByEmail(email);
+        
+        if (!user) {
+            throw new Error(`User with email ${email} not found`);
+        }
+        
+        return user;
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        throw error;
+    }
+};
+
 export {
     printUsers,
     getNewUser,
     getUserById,
-    addUser
+    addUser,
+    checkUserExists,
+    getProfile
 };

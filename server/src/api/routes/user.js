@@ -8,7 +8,12 @@ const router = express.Router();
 router.get("/", UserController.getUsers);
 
 // Get user by ID
-router.get("/:id", UserController.getUserById);
+// router.get("/:id", UserController.getUserById);
+
+// Check if user exists by email
+router.get("/check/:email", UserController.checkUserExists);
+
+router.get("/profile/:email", UserController.getProfile);
 
 // Add a new user
 router.post("/", UserController.addUser);

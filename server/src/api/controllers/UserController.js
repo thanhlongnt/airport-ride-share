@@ -41,9 +41,29 @@ const addUser = async (req, res) => {
     
 }
 
+const checkUserExists = async (req, res) => {
+    try {
+        const exists = await userServices.checkUserExists(req.params.email);
+        res.json({ exists });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
+const getProfile = async (req, res) => {
+    try {
+        const user = await userServices.getProfile(req.params.email);
+        res.json(user);
+    } catch (error) {
+        res.status(404).json({ error: error.message });
+    }
+}
+
 export {
     getUsers,
     getNewUser,
     getUserById,
-    addUser
+    addUser,
+    checkUserExists,
+    getProfile
 }

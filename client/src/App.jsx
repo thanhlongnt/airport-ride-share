@@ -5,10 +5,8 @@ import Login from './components/Login';
 import ProfileSetup from './components/ProfileSetup';
 import Home from './components/Home';
 
-// Replace with your actual Google Client ID
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-// App flow stages
 const STAGES = {
   LOGIN: 'login',
   PROFILE_SETUP: 'profile_setup',
@@ -19,52 +17,45 @@ function App() {
   const [currentStage, setCurrentStage] = useState(STAGES.LOGIN);
   const [user, setUser] = useState(null);
   
-  // Handle successful Google authentication
-  const handleLoginSuccess = (googleUser) => {
-    // In a real app, you would get this data from the Google Auth response
-    // For this example, we're creating a mock user object
-    setUser({
-      id: 'google-user-123',
-      email: 'user@example.com',
-      // Other Google profile info would go here
-    });
-    
-    // Move to profile setup stage
-    setCurrentStage(STAGES.PROFILE_SETUP);
+  const handleLoginSuccess = (googleUser, profileData) => {
+    if (profileData) {
+      // User already has a profile, go directly to home
+      setUser({
+        ...googleUser,
+        ...profileData
+      });
+      setCurrentStage(STAGES.HOME);
+    } else {
+      // No profile exists, go to profile setup
+      setUser({
+        ...googleUser
+      });
+      setCurrentStage(STAGES.PROFILE_SETUP);
+    }
   };
   
-  // Handle profile completion
   const handleProfileComplete = (profileData) => {
-    // Create a copy of profile data for processing
     const processedProfileData = {...profileData};
     
-    // If there's a profile image, create a data URL for storage
-    // In a real app, you'd upload this to a server and store the URL
     if (profileData.profileImage) {
-      // We're keeping the File object as is for this example
-      // In a real application, you would upload the file to a server
-      // and store the URL instead
       console.log('Profile image received:', profileData.profileImage.name);
     }
     
-    // Update user with profile data
     setUser({
       ...user,
       ...processedProfileData
     });
     
-    // Move to home stage
     setCurrentStage(STAGES.HOME);
   };
 
-  // Render the appropriate component based on the current stage
   const renderCurrentStage = () => {
     switch (currentStage) {
       case STAGES.LOGIN:
         return <Login onLoginSuccess={handleLoginSuccess} />;
         
       case STAGES.PROFILE_SETUP:
-        return <ProfileSetup onComplete={handleProfileComplete} />;
+        return <ProfileSetup onComplete={handleProfileComplete} user={user} />;
         
       case STAGES.HOME:
         return <Home user={user} />;

@@ -18,9 +18,8 @@ function Login({ onLoginSuccess }) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const handleGoogleSuccess = (credentialResponse) => {
+  const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      // Decode the JWT token from Google
       const decoded = jwtDecode(credentialResponse.credential);
       
       const googleUser = {
@@ -30,11 +29,42 @@ function Login({ onLoginSuccess }) {
         googleId: decoded.sub
       };
       
+      // Save googleUser into cookie (expires in 1 hour)
+      const expires = new Date();
+      expires.setTime(expires.getTime() + 60 * 60 * 1000); // 1 hour
+      document.cookie = `googleUser=${encodeURIComponent(JSON.stringify(googleUser))}; expires=${expires.toUTCString()}; path=/`;
+
       console.log('Google login successful:', googleUser);
       
-      // Pass the authenticated user to the parent component
-      if (onLoginSuccess) {
-        onLoginSuccess(googleUser);
+      // Check if user already has a profile
+      try {
+        const checkResponse = await fetch(`http://localhost:3000/users/check/${encodeURIComponent(googleUser.email)}`);
+        const { exists } = await checkResponse.json();
+        
+        if (exists) {
+          // User has a profile, fetch it
+          const profileResponse = await fetch(`http://localhost:3000/users/profile/${encodeURIComponent(googleUser.email)}`);
+          const profileData = await profileResponse.json();
+          
+          console.log('User profile found:', profileData);
+          
+          // Pass the profile data with a flag indicating user already exists
+          if (onLoginSuccess) {
+            onLoginSuccess(googleUser, profileData);
+          }
+        } else {
+          // No profile exists, proceed to profile setup
+          console.log('No profile found, redirecting to setup');
+          if (onLoginSuccess) {
+            onLoginSuccess(googleUser, null);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking user profile:', error);
+        // On error, proceed to profile setup as fallback
+        if (onLoginSuccess) {
+          onLoginSuccess(googleUser, null);
+        }
       }
     } catch (error) {
       console.error('Error decoding Google credential:', error);

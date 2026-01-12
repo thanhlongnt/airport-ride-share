@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import './ProfileSetup.css';
 
-function ProfileSetup({ onComplete }) {
+function ProfileSetup({ onComplete, user }) {
   const [formData, setFormData] = useState({
-    email: '',
-    name: '',
+    email: user?.email || '',
+    name: user?.name || '',
     phoneNumber: '',
     instagramHandle: '',
     summary: '',
@@ -26,6 +26,37 @@ function ProfileSetup({ onComplete }) {
     window.addEventListener('resize', checkMobile);
     
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    // Read googleUser from cookie and prefill form
+    const getCookie = (name) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) {
+        return decodeURIComponent(parts.pop().split(';').shift());
+      }
+      return null;
+    };
+
+    const googleUserCookie = getCookie('googleUser');
+    if (googleUserCookie) {
+      try {
+        const googleUser = JSON.parse(googleUserCookie);
+        setFormData(prevData => ({
+          ...prevData,
+          email: googleUser.email || '',
+          name: googleUser.name || ''
+        }));
+        
+        // Set profile image preview if picture is available
+        if (googleUser.picture) {
+          setProfileImagePreview(googleUser.picture);
+        }
+      } catch (error) {
+        console.error('Error parsing googleUser cookie:', error);
+      }
+    }
   }, []);
 
   const handleChange = (e) => {
