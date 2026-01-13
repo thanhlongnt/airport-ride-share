@@ -23,7 +23,6 @@ app.get("/", (req, res) => {
 });
 
 app.use("/users", userRouter);
-app.use("/mongo", mongoRouter);
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
