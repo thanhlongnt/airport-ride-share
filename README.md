@@ -48,16 +48,3 @@ TritonSplit helps UCSD students find carpool partners for shared rides (Uber, Ly
 5. **Mark as Resolved**
    - Creator marks the post as resolved once ride is arranged
    - Post is removed from active listings
-
-## Tech Stack
-
-**Frontend:**
-- React (Vite)
-- Future: Migration to Next.js + Tailwind CSS
-
-**Backend:**
-- Node.js + Express
-- MongoDB (Mongoose)
-
-**Authentication:**
-- Supabase + Google OAuth
